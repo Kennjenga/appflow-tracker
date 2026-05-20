@@ -1,14 +1,20 @@
+import React, { useMemo, useState } from 'react'
 import { X } from 'lucide-react'
-import { useMemo, useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { applicationsApi, getApiErrorMessage } from '../api/applications'
 import { REVIEW_DECISIONS, STATUSES, isCommentRequired } from '../utils/workflow'
 import ErrorMessage from './ErrorMessage'
 
-export default function ReviewDecisionModal({ applicationId, onClose, onSuccess }) {
-  const [decision, setDecision] = useState(STATUSES.APPROVED)
-  const [reviewerComment, setReviewerComment] = useState('')
-  const [validationError, setValidationError] = useState('')
+type Props = {
+  applicationId: string | number
+  onClose: () => void
+  onSuccess: (application: any) => void
+}
+
+export default function ReviewDecisionModal({ applicationId, onClose, onSuccess }: Props) {
+  const [decision, setDecision] = useState<string>(STATUSES.APPROVED)
+  const [reviewerComment, setReviewerComment] = useState<string>('')
+  const [validationError, setValidationError] = useState<string>('')
 
   const commentRequired = useMemo(() => isCommentRequired(decision), [decision])
 
@@ -24,7 +30,7 @@ export default function ReviewDecisionModal({ applicationId, onClose, onSuccess 
     },
   })
 
-  function handleSubmit(event) {
+  function handleSubmit(event: React.FormEvent) {
     event.preventDefault()
     setValidationError('')
 
@@ -64,7 +70,7 @@ export default function ReviewDecisionModal({ applicationId, onClose, onSuccess 
           <label className="field">
             <span>Reviewer comment {commentRequired ? '' : <small>(optional)</small>}</span>
             <textarea
-              rows="5"
+              rows={5}
               value={reviewerComment}
               onChange={(event) => setReviewerComment(event.target.value)}
               aria-invalid={Boolean(validationError)}

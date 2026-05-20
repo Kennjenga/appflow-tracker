@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+*.log
+.pytest_cache/
+.ruff_cache/
+db.sqlite3
+venv/
+backend/venv/
+PLAN.md
+
+node_modules/
+dist/
+.vite/
+
+.env
+frontend/.env
+backend/.env

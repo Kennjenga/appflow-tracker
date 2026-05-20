@@ -13,7 +13,7 @@ import {
 } from 'lucide-react'
 
 const NAV_ITEMS = [
-  { label: 'All Tasks', icon: ClipboardList, href: '/', status: undefined },
+  { label: 'All Applications', icon: ClipboardList, href: '/', status: undefined },
   { label: 'Drafts', icon: FilePenLine, href: '/', status: 'Draft' },
   { label: 'Pending Review', icon: Clock, href: '/', status: 'Pending' },
   { label: 'Completed', icon: CheckCircle2, href: '/', status: 'Completed' },
@@ -63,14 +63,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <LayoutGrid size={20} />
           </div>
           <div>
-            <h2 className="sidebar__brand-title">Task Manager</h2>
+            <h2 className="sidebar__brand-title">AppFlow Tracker</h2>
             <p className="sidebar__brand-sub">Enterprise-Lite Tracking</p>
           </div>
         </div>
 
         <Link to="/applications/new" className="sidebar__cta">
           <Plus size={18} />
-          Create New Task
+          New Application
         </Link>
 
         <nav className="sidebar__nav">

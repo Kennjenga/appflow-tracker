@@ -28,6 +28,11 @@ const rootRoute = createRootRoute({
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
+  validateSearch: (search: Record<string, unknown>) => {
+    return {
+      status: (search.status as string) || undefined,
+    }
+  },
   component: ApplicationListPage,
 })
 

@@ -7,7 +7,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 import { ArrowDownUp, Filter, Download, Plus, Search, Clock, TrendingUp } from 'lucide-react'
-import { Link, useNavigate } from '@tanstack/react-router'
+import { Link, useNavigate, useSearch } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { applicationsApi, getApiErrorMessage } from '../api/applications'
 import ErrorMessage from '../components/ErrorMessage'
@@ -33,9 +33,31 @@ export default function ApplicationListPage() {
   const [globalFilter, setGlobalFilter] = useState<string>('')
   const [sorting, setSorting] = useState<any[]>([{ id: 'created_at', desc: true }])
 
+  const search = useSearch({ strict: false }) as { status?: string }
+  const statusFilter = search.status
+
   const query = useQuery({ queryKey: ['applications'], queryFn: applicationsApi.list })
 
   const data = (query.data as Application[]) || []
+
+  const filteredData = useMemo(() => {
+    if (!statusFilter) return data
+    if (statusFilter === 'Draft') {
+      return data.filter((a) => a.status === 'Draft')
+    }
+    if (statusFilter === 'Pending') {
+      return data.filter(
+        (a) =>
+          a.status === 'Submitted' ||
+          a.status === 'Under Review' ||
+          a.status === 'Need More Information',
+      )
+    }
+    if (statusFilter === 'Completed') {
+      return data.filter((a) => a.status === 'Approved' || a.status === 'Rejected')
+    }
+    return data
+  }, [data, statusFilter])
 
   const columns = useMemo(
     () => [
@@ -70,7 +92,7 @@ export default function ApplicationListPage() {
   )
 
   const table = useReactTable({
-    data,
+    data: filteredData,
     columns: columns as any,
     state: { globalFilter, sorting },
     onGlobalFilterChange: setGlobalFilter,
@@ -84,6 +106,12 @@ export default function ApplicationListPage() {
   const pendingCount = data.filter(
     (a) => a.status === 'Under Review' || a.status === 'Submitted',
   ).length
+
+  const activeFilterLabel = useMemo(() => {
+    if (!statusFilter) return 'All'
+    if (statusFilter === 'Pending') return 'Pending Review'
+    return statusFilter
+  }, [statusFilter])
 
   return (
     <div className="page-shell">
@@ -139,7 +167,27 @@ export default function ApplicationListPage() {
           <div className="table-surface__header-left">
             <h2>Application List</h2>
             <div className="filter-tab">
-              <button className="filter-tab__item">All</button>
+              <button
+                className="filter-tab__item"
+                onClick={() => navigate({ to: '/', search: { status: undefined } })}
+              >
+                {activeFilterLabel}
+              </button>
+              {statusFilter && (
+                <button
+                  className="filter-tab__item"
+                  style={{
+                    marginLeft: 4,
+                    background: 'transparent',
+                    border: 'none',
+                    color: 'var(--outline)',
+                    boxShadow: 'none',
+                  }}
+                  onClick={() => navigate({ to: '/', search: { status: undefined } })}
+                >
+                  Clear Filter
+                </button>
+              )}
             </div>
           </div>
           <div className="table-surface__header-right">
@@ -209,7 +257,7 @@ export default function ApplicationListPage() {
 
             <div className="table-surface__footer">
               <span>
-                Showing 1 to {table.getRowModel().rows.length} of {data.length} entries
+                Showing 1 to {table.getRowModel().rows.length} of {filteredData.length} entries
               </span>
               <div className="table-surface__footer-pagination">
                 <button className="pagination-btn" disabled>
@@ -221,7 +269,7 @@ export default function ApplicationListPage() {
             </div>
           </>
         ) : (
-          <p className="empty-state">No applications found.</p>
+          <p className="empty-state">No applications found in this stage.</p>
         )}
       </section>
     </div>

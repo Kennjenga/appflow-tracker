@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link, useMatches } from '@tanstack/react-router'
+import { Link, useMatches, useSearch } from '@tanstack/react-router'
 import {
   ClipboardList,
   FilePenLine,
@@ -13,22 +13,24 @@ import {
 } from 'lucide-react'
 
 const NAV_ITEMS = [
-  { label: 'All Tasks', icon: ClipboardList, href: '/' },
-  { label: 'Drafts', icon: FilePenLine, href: '/' },
-  { label: 'Pending Review', icon: Clock, href: '/' },
-  { label: 'Completed', icon: CheckCircle2, href: '/' },
+  { label: 'All Tasks', icon: ClipboardList, href: '/', status: undefined },
+  { label: 'Drafts', icon: FilePenLine, href: '/', status: 'Draft' },
+  { label: 'Pending Review', icon: Clock, href: '/', status: 'Pending' },
+  { label: 'Completed', icon: CheckCircle2, href: '/', status: 'Completed' },
 ]
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const matches = useMatches()
   const currentPath = matches[matches.length - 1]?.pathname ?? '/'
+  const search = useSearch({ strict: false }) as { status?: string }
+  const currentStatus = search.status
 
   return (
     <div className="app-layout">
       {/* Top Nav Bar */}
       <header className="topnav">
         <div className="topnav__left">
-          <span className="topnav__brand">WorkflowStream</span>
+          <span className="topnav__brand">AppFlow</span>
           <nav className="topnav__links">
             <Link
               to="/"
@@ -36,7 +38,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             >
               Dashboard
             </Link>
-            <span className="topnav__link">Workflows</span>
           </nav>
         </div>
 
@@ -73,13 +74,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </Link>
 
         <nav className="sidebar__nav">
-          {NAV_ITEMS.map((item, idx) => {
-            const isActive = idx === 0 && currentPath === '/'
+          {NAV_ITEMS.map((item) => {
+            const isActive =
+              currentPath === '/' && currentStatus === item.status
             const Icon = item.icon
             return (
               <Link
                 key={item.label}
                 to={item.href}
+                search={{ status: item.status }}
                 className={`sidebar__nav-item ${isActive ? 'sidebar__nav-item--active' : ''}`}
               >
                 <Icon size={20} />

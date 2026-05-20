@@ -1,24 +1,38 @@
 import {
-  Outlet,
   Navigate,
+  Outlet,
   RouterProvider,
   createRootRoute,
   createRoute,
   createRouter,
 } from '@tanstack/react-router'
 import './App.css'
+import Layout from './components/Layout'
 import ApplicationDetailPage from './pages/ApplicationDetailPage'
 import ApplicationFormPage from './pages/ApplicationFormPage'
 import ApplicationListPage from './pages/ApplicationListPage'
 
+function RootComponent() {
+  return (
+    <Layout>
+      <Outlet />
+    </Layout>
+  )
+}
+
 const rootRoute = createRootRoute({
-  component: Outlet,
+  component: RootComponent,
   notFoundComponent: () => <Navigate to="/" replace />,
 })
 
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
+  validateSearch: (search: Record<string, unknown>) => {
+    return {
+      status: (search.status as string) || undefined,
+    }
+  },
   component: ApplicationListPage,
 })
 

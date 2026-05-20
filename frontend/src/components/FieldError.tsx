@@ -6,7 +6,7 @@ export default function FieldError({ id, children }: Props) {
   if (!children) return null
 
   return (
-    <p className="field-error" id={id}>
+    <p className="text-error text-xs font-semibold mt-1" id={id}>
       {children}
     </p>
   )

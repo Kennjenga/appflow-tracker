@@ -139,9 +139,9 @@ export default function ApplicationFormPage() {
   }
 
   return (
-    <div className="page-shell page-shell--narrow">
+    <div className="max-w-3xl mx-auto w-full">
       <Link
-        className="back-link"
+        className="inline-flex items-center gap-2 mb-5 text-secondary font-semibold text-sm hover:text-primary transition-colors no-underline"
         to={isEdit ? '/applications/$id' : '/'}
         params={(isEdit ? { id } : undefined) as any}
       >
@@ -149,33 +149,37 @@ export default function ApplicationFormPage() {
         Back
       </Link>
 
-      <section className="page-header">
+      <section className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-6">
         <div>
-          <p className="eyebrow">
+          <p className="m-0 text-xs font-semibold tracking-wider uppercase text-on-surface-variant">
             {isEdit ? existingData?.tracking_number : 'Draft intake'}
           </p>
-          <h1>{formTitle}</h1>
-          <p className="page-subtitle">{formSubtitle}</p>
+          <h1 className="text-[28px] leading-9 font-semibold text-on-surface tracking-tight m-0 mt-1">
+            {formTitle}
+          </h1>
+          <p className="text-base text-on-surface-variant mt-1 leading-relaxed">
+            {formSubtitle}
+          </p>
         </div>
         {existingData?.status && <StatusBadge status={existingData.status} />}
       </section>
 
       {existingQuery.isLoading ? (
-        <p className="empty-state">Loading application...</p>
+        <p className="m-0 p-9 text-on-surface-variant text-center">Loading application...</p>
       ) : (
         <>
           {/* Reviewer Feedback Alert */}
           {isEdit && existingData?.reviewer_comment && (
-            <div className="alert alert--warning">
-              <AlertCircle size={20} className="alert__icon" />
+            <div className="flex gap-3 items-start bg-tertiary-fixed border border-tertiary-fixed-dim text-on-tertiary-fixed-variant rounded p-3 mb-4 text-sm font-semibold">
+              <AlertCircle size={20} className="shrink-0 mt-0.5" />
               <div>
-                <strong>Reviewer Feedback</strong>
+                <strong className="block mb-1">Reviewer Feedback</strong>
                 {existingData.reviewer_comment}
               </div>
             </div>
           )}
 
-          <form className="form-panel" onSubmit={handleSubmit} noValidate>
+          <form className="bg-surface border border-outline-variant rounded-lg p-6" onSubmit={handleSubmit} noValidate>
             <ErrorMessage>
               {editBlocked
                 ? `Applications in ${existingData?.status} status cannot be edited.`
@@ -191,10 +195,12 @@ export default function ApplicationFormPage() {
             </ErrorMessage>
 
             {/* Applicant Details Section */}
-            <p className="form-section-label">Applicant Details</p>
-            <div className="form-grid">
-              <label className="field">
-                <span>Full Name</span>
+            <p className="text-xs font-semibold tracking-wider uppercase text-primary mb-4 pb-2 border-b border-outline-variant">
+              Applicant Details
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-[18px]">
+              <label className="grid gap-[7px]">
+                <span className="text-secondary font-semibold text-sm">Full Name</span>
                 <input
                   name="applicant_name"
                   value={activeForm.applicant_name}
@@ -203,14 +209,15 @@ export default function ApplicationFormPage() {
                   aria-invalid={Boolean(errors.applicant_name)}
                   aria-describedby="applicant_name-error"
                   disabled={editBlocked}
+                  className="w-full border border-border rounded px-3 h-[42px] bg-white text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
                 />
                 <FieldError id="applicant_name-error">
                   {errors.applicant_name}
                 </FieldError>
               </label>
 
-              <label className="field">
-                <span>Email Address</span>
+              <label className="grid gap-[7px]">
+                <span className="text-secondary font-semibold text-sm">Email Address</span>
                 <input
                   name="applicant_email"
                   type="email"
@@ -220,14 +227,15 @@ export default function ApplicationFormPage() {
                   aria-invalid={Boolean(errors.applicant_email)}
                   aria-describedby="applicant_email-error"
                   disabled={editBlocked}
+                  className="w-full border border-border rounded px-3 h-[42px] bg-white text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
                 />
                 <FieldError id="applicant_email-error">
                   {errors.applicant_email}
                 </FieldError>
               </label>
 
-              <label className="field field--full">
-                <span>Company Name</span>
+              <label className="grid gap-[7px] md:col-span-2">
+                <span className="text-secondary font-semibold text-sm">Company Name</span>
                 <input
                   name="company_name"
                   value={activeForm.company_name}
@@ -236,6 +244,7 @@ export default function ApplicationFormPage() {
                   aria-invalid={Boolean(errors.company_name)}
                   aria-describedby="company_name-error"
                   disabled={editBlocked}
+                  className="w-full border border-border rounded px-3 h-[42px] bg-white text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
                 />
                 <FieldError id="company_name-error">
                   {errors.company_name}
@@ -244,11 +253,11 @@ export default function ApplicationFormPage() {
             </div>
 
             {/* Application Parameters Section */}
-            <p className="form-section-label" style={{ marginTop: 24 }}>
+            <p className="text-xs font-semibold tracking-wider uppercase text-primary mb-4 pb-2 border-b border-outline-variant mt-6">
               Application Parameters
             </p>
-            <label className="field">
-              <span>Application Type</span>
+            <label className="grid gap-[7px]">
+              <span className="text-secondary font-semibold text-sm">Application Type</span>
               <select
                 name="application_type"
                 value={activeForm.application_type}
@@ -256,6 +265,7 @@ export default function ApplicationFormPage() {
                 aria-invalid={Boolean(errors.application_type)}
                 aria-describedby="application_type-error"
                 disabled={editBlocked}
+                className="w-full border border-border rounded px-3 h-[42px] bg-white text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <option value="">Select a type...</option>
                 {APPLICATION_TYPES.map((type) => (
@@ -269,8 +279,8 @@ export default function ApplicationFormPage() {
               </FieldError>
             </label>
 
-            <label className="field" style={{ marginTop: 18 }}>
-              <span>Description</span>
+            <label className="grid gap-[7px] mt-[18px]">
+              <span className="text-secondary font-semibold text-sm">Description</span>
               <textarea
                 name="description"
                 rows={6}
@@ -279,23 +289,24 @@ export default function ApplicationFormPage() {
                 placeholder="Provide a detailed overview of the application request..."
                 disabled={editBlocked}
                 maxLength={MAX_DESCRIPTION}
+                className="w-full border border-border rounded px-3 py-2.5 min-h-[120px] resize-y bg-white text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
               />
-              <small className="char-count">
+              <small className="text-right text-xs text-on-surface-variant font-semibold mt-1">
                 {activeForm.description.length} / {MAX_DESCRIPTION} characters
               </small>
             </label>
 
             {/* Button Row */}
-            <div className="button-row button-row--end">
+            <div className="flex flex-wrap gap-2.5 mt-6 justify-end">
               <Link
-                className="button button--ghost"
+                className="inline-flex items-center justify-center gap-2 min-h-[40px] font-semibold text-sm rounded px-4 border border-outline-variant text-secondary bg-transparent hover:bg-surface-container-low transition-all active:scale-95"
                 to={isEdit ? '/applications/$id' : '/'}
                 params={(isEdit ? { id } : undefined) as any}
               >
                 Save as Draft
               </Link>
               <button
-                className="button button--primary"
+                className="inline-flex items-center justify-center gap-2 min-h-[40px] font-semibold text-sm rounded px-4 bg-primary text-white hover:bg-primary-strong active:scale-95 transition-all disabled:opacity-50"
                 type="submit"
                 disabled={mutation.isPending || editBlocked}
               >
@@ -310,15 +321,15 @@ export default function ApplicationFormPage() {
           </form>
 
           {/* Trust Footer */}
-          <div className="trust-footer">
-            <div className="trust-footer__icons">
+          <div className="mt-10 p-6 bg-surface-container-low border border-outline-variant rounded-lg text-center">
+            <div className="flex justify-center gap-6 mb-2 text-outline">
               <ShieldCheck size={28} />
               <Share2 size={28} />
             </div>
-            <p>
+            <p className="m-0 text-sm text-on-surface-variant leading-relaxed">
               All submissions are tracked via our{' '}
-              <strong>enterprise-lite transparent audit log</strong> for{' '}
-              <span className="highlight">
+              <strong className="text-on-surface">enterprise-lite transparent audit log</strong> for{' '}
+              <span className="text-primary font-semibold">
                 maximum security and compliance
               </span>
               .

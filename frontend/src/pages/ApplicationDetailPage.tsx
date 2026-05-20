@@ -51,9 +51,13 @@ type DetailItemProps = {
 
 function DetailItem({ label, children }: DetailItemProps) {
   return (
-    <div className="detail-item">
-      <dt>{label}</dt>
-      <dd>{children || 'Not provided'}</dd>
+    <div className="min-h-0 p-0 bg-transparent">
+      <dt className="mb-1 text-xs font-semibold tracking-wider uppercase text-on-surface-variant">
+        {label}
+      </dt>
+      <dd className="m-0 font-medium text-base text-on-surface break-all">
+        {children || 'Not provided'}
+      </dd>
     </div>
   )
 }
@@ -121,28 +125,34 @@ export default function ApplicationDetailPage() {
   }, [query.data])
 
   return (
-    <div className="page-shell">
+    <div className="max-w-7xl mx-auto w-full">
       {query.isLoading ? (
-        <p className="empty-state">Loading application...</p>
+        <p className="m-0 p-9 text-on-surface-variant text-center">Loading application...</p>
       ) : query.isError ? (
         <ErrorMessage>{getApiErrorMessage(query.error)}</ErrorMessage>
       ) : (
         <>
           {/* Breadcrumbs */}
-          <nav className="breadcrumbs" aria-label="Breadcrumb">
-            <Link to="/">Workflows</Link>
-            <ChevronRight size={14} className="breadcrumb-sep" />
-            <Link to="/">Pending Review</Link>
-            <ChevronRight size={14} className="breadcrumb-sep" />
-            <span className="breadcrumb-active">
+          <nav className="flex items-center gap-2 mb-4" aria-label="Breadcrumb">
+            <Link to="/" className="text-xs font-semibold tracking-wide uppercase text-on-surface-variant no-underline transition-colors hover:text-primary">
+              Workflows
+            </Link>
+            <ChevronRight size={14} className="text-outline" />
+            <Link to="/" className="text-xs font-semibold tracking-wide uppercase text-on-surface-variant no-underline transition-colors hover:text-primary">
+              Pending Review
+            </Link>
+            <ChevronRight size={14} className="text-outline" />
+            <span className="text-xs font-semibold tracking-wide uppercase text-primary">
               {query.data?.tracking_number}
             </span>
           </nav>
 
           {/* Page Header */}
-          <section className="page-header">
-            <div className="page-header__title-row">
-              <h1>Application #{query.data?.tracking_number}</h1>
+          <section className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-6">
+            <div className="flex items-center gap-4">
+              <h1 className="text-[28px] leading-9 font-semibold text-on-surface tracking-tight m-0">
+                Application #{query.data?.tracking_number}
+              </h1>
               <StatusBadge status={query.data?.status} />
             </div>
           </section>
@@ -154,22 +164,22 @@ export default function ApplicationDetailPage() {
           </ErrorMessage>
 
           {/* 2-Column Layout */}
-          <section className="detail-layout">
+          <section className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 items-start">
             {/* Main Column */}
-            <div className="detail-main">
+            <div className="grid gap-6">
               {/* Applicant Information Card */}
-              <div className="detail-card">
-                <div className="status-accent-bar status-accent-bar--tertiary" />
-                <h3 className="detail-card__title">
-                  <Info size={20} className="detail-card__title-icon" />
+              <div className="relative bg-surface border border-outline-variant p-6 rounded-lg overflow-hidden">
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-tertiary" />
+                <h3 className="text-xl font-semibold m-0 mb-6 flex items-center gap-2">
+                  <Info size={20} className="text-tertiary" />
                   Applicant Information
                 </h3>
-                <dl className="detail-grid">
+                <dl className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-x-8 md:gap-y-6 m-0">
                   <DetailItem label="Full Legal Name">
                     {query.data?.applicant_name}
                   </DetailItem>
                   <DetailItem label="Tracking Number">
-                    <code>{query.data?.tracking_number}</code>
+                    <code className="font-mono text-sm">{query.data?.tracking_number}</code>
                   </DetailItem>
                   <DetailItem label="Submission Date">
                     {formatDateTime(query.data?.submitted_at)}
@@ -187,33 +197,33 @@ export default function ApplicationDetailPage() {
               </div>
 
               {/* Request Justification */}
-              <section className="content-block">
-                <h2>Request Justification</h2>
-                <p>
+              <section className="bg-surface border border-outline-variant rounded-lg p-6">
+                <h2 className="m-0 mb-3 text-xl font-semibold">Request Justification</h2>
+                <p className="m-0 text-on-surface-variant leading-relaxed whitespace-pre-wrap">
                   {query.data?.description || 'No description provided.'}
                 </p>
               </section>
 
               {/* Reviewer Comment */}
               {query.data?.reviewer_comment && (
-                <section className="content-block content-block--note">
-                  <h2>Reviewer Comment</h2>
-                  <p>{query.data.reviewer_comment}</p>
+                <section className="bg-surface border border-outline-variant rounded-lg p-6 bg-[#fffaf0]">
+                  <h2 className="m-0 mb-3 text-xl font-semibold">Reviewer Comment</h2>
+                  <p className="m-0 text-on-surface-variant leading-relaxed whitespace-pre-wrap">{query.data.reviewer_comment}</p>
                 </section>
               )}
             </div>
 
             {/* Sidebar Column */}
-            <div className="detail-sidebar">
+            <div className="grid gap-6 items-start">
               {/* Reviewer Actions Panel */}
-              <aside className="action-panel" aria-label="Application actions">
-                <h2 className="action-panel__title">
-                  <Shield size={20} className="action-panel__title-icon" />
+              <aside className="bg-surface border border-outline-variant rounded-lg p-6 shadow-sm grid gap-3 sticky top-24" aria-label="Application actions">
+                <h2 className="m-0 mb-2 text-xl font-semibold flex items-center gap-2">
+                  <Shield size={20} className="text-primary" />
                   Reviewer Actions
                 </h2>
 
                 {availableActions.length === 0 && (
-                  <p className="muted">
+                  <p className="m-0 text-on-surface-variant leading-normal">
                     This workflow is complete.{' '}
                     {query.data?.status === STATUSES.APPROVED
                       ? 'The application was approved.'
@@ -226,7 +236,7 @@ export default function ApplicationDetailPage() {
 
                 {availableActions.includes('edit') && (
                   <button
-                    className="button button--secondary"
+                    className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-surface hover:bg-surface-container-low text-on-surface border border-outline-variant font-semibold text-sm rounded transition-all active:scale-[0.97]"
                     type="button"
                     onClick={() =>
                       navigate({
@@ -242,7 +252,7 @@ export default function ApplicationDetailPage() {
 
                 {availableActions.includes('submit') && (
                   <button
-                    className="button button--primary"
+                    className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-primary hover:bg-primary-strong text-white font-semibold text-sm rounded transition-all active:scale-[0.97] disabled:opacity-50"
                     type="button"
                     onClick={() => actionMutation.mutate('submit')}
                     disabled={actionMutation.isPending}
@@ -254,7 +264,7 @@ export default function ApplicationDetailPage() {
 
                 {availableActions.includes('resubmit') && (
                   <button
-                    className="button button--primary"
+                    className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-primary hover:bg-primary-strong text-white font-semibold text-sm rounded transition-all active:scale-[0.97] disabled:opacity-50"
                     type="button"
                     onClick={() => actionMutation.mutate('resubmit')}
                     disabled={actionMutation.isPending}
@@ -266,7 +276,7 @@ export default function ApplicationDetailPage() {
 
                 {availableActions.includes('startReview') && (
                   <button
-                    className="button button--primary"
+                    className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-primary hover:bg-primary-strong text-white font-semibold text-sm rounded transition-all active:scale-[0.97] disabled:opacity-50"
                     type="button"
                     onClick={() => actionMutation.mutate('startReview')}
                     disabled={actionMutation.isPending}
@@ -279,7 +289,7 @@ export default function ApplicationDetailPage() {
                 {availableActions.includes('decision') && (
                   <>
                     <button
-                      className="button button--primary"
+                      className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-primary hover:bg-primary-strong text-white font-semibold text-sm rounded transition-all active:scale-[0.97]"
                       type="button"
                       onClick={() => setIsDecisionOpen(true)}
                     >
@@ -287,7 +297,7 @@ export default function ApplicationDetailPage() {
                       Approve Application
                     </button>
                     <button
-                      className="button button--secondary"
+                      className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-surface hover:bg-surface-container-low text-on-surface border border-outline-variant font-semibold text-sm rounded transition-all active:scale-[0.97]"
                       type="button"
                       onClick={() => setIsDecisionOpen(true)}
                     >
@@ -295,7 +305,7 @@ export default function ApplicationDetailPage() {
                       Need More Information
                     </button>
                     <button
-                      className="button button--danger"
+                      className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-transparent hover:bg-red-50 border border-error text-error font-semibold text-sm rounded transition-all active:scale-[0.97]"
                       type="button"
                       onClick={() => setIsDecisionOpen(true)}
                     >
@@ -307,9 +317,9 @@ export default function ApplicationDetailPage() {
 
                 {(query.data?.status === STATUSES.UNDER_REVIEW ||
                   query.data?.status === STATUSES.SUBMITTED) && (
-                  <div className="review-deadline">
-                    <p className="review-deadline__label">Review Deadline</p>
-                    <div className="review-deadline__value">
+                  <div className="mt-2 pt-5 border-t border-outline-variant">
+                    <p className="text-xs font-semibold tracking-wider uppercase text-on-surface-variant mb-2">Review Deadline</p>
+                    <div className="flex items-center gap-2 text-error font-bold text-sm">
                       <Timer size={16} />
                       <span>48 Hours Remaining</span>
                     </div>
@@ -319,26 +329,26 @@ export default function ApplicationDetailPage() {
 
               {/* Lifecycle Events Timeline */}
               {lifecycleEvents.length > 0 && (
-                <div className="timeline-card">
-                  <h4>Lifecycle Events</h4>
-                  <ul className="timeline-list">
+                <div className="bg-surface-container-low border border-outline-variant border-opacity-50 rounded-lg p-6">
+                  <h4 className="m-0 mb-4 text-sm font-semibold text-on-surface">Lifecycle Events</h4>
+                  <ul className="list-none m-0 p-0">
                     {lifecycleEvents.map((event, idx) => (
-                      <li key={idx} className="timeline-item">
-                        <div className="timeline-item__indicator">
+                      <li key={idx} className="flex gap-3">
+                        <div className="flex flex-col items-center">
                           <div
-                            className={`timeline-item__dot${event.muted ? ' timeline-item__dot--muted' : ''}`}
+                            className={`w-2 h-2 rounded-full shrink-0 mt-1 ${event.muted ? 'bg-outline' : 'bg-primary'}`}
                           />
                           {idx < lifecycleEvents.length - 1 && (
-                            <div className="timeline-item__line" />
+                            <div className="w-px flex-1 bg-outline-variant my-1 min-h-[16px]" />
                           )}
                         </div>
-                        <div className="timeline-item__content">
+                        <div className="pb-4">
                           <p
-                            className={`timeline-item__label${event.muted ? ' timeline-item__label--muted' : ''}`}
+                            className={`m-0 text-xs font-semibold ${event.muted ? 'text-on-surface-variant italic' : 'text-on-surface'}`}
                           >
                             {event.label}
                           </p>
-                          <p className="timeline-item__date">
+                          <p className="m-0 mt-0.5 text-[11px] text-on-surface-variant">
                             {event.date
                               ? new Intl.DateTimeFormat(undefined, {
                                   dateStyle: 'medium',

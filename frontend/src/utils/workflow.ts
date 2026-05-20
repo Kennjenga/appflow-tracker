@@ -29,7 +29,7 @@ export const STATUS_META: Record<string, { label: string; tone: string }> = {
   [STATUSES.DRAFT]: { label: 'Draft', tone: 'neutral' },
   [STATUSES.SUBMITTED]: { label: 'Submitted', tone: 'info' },
   [STATUSES.UNDER_REVIEW]: { label: 'Under Review', tone: 'warning' },
-  [STATUSES.NEED_MORE_INFORMATION]: { label: 'Need More Information', tone: 'attention' },
+  [STATUSES.NEED_MORE_INFORMATION]: { label: 'Need More Information', tone: 'interaction' },
   [STATUSES.APPROVED]: { label: 'Approved', tone: 'success' },
   [STATUSES.REJECTED]: { label: 'Rejected', tone: 'danger' },
 }

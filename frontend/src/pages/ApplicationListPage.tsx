@@ -66,7 +66,7 @@ export default function ApplicationListPage() {
         header: 'Tracking Number',
         cell: ({ row, getValue }: any) => (
           <Link
-            className="table-link"
+            className="text-primary font-semibold hover:underline"
             to="/applications/$id"
             params={{ id: String((row.original as Application).id) } as any}
           >
@@ -114,75 +114,79 @@ export default function ApplicationListPage() {
   }, [statusFilter])
 
   return (
-    <div className="page-shell">
+    <div className="max-w-7xl mx-auto w-full">
       {/* Page Header */}
-      <section className="page-header">
+      <section className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-6">
         <div>
-          <h1>Workflow Dashboard</h1>
-          <p className="page-subtitle">
+          <h1 className="text-[28px] leading-9 font-semibold text-on-surface tracking-tight m-0">
+            Workflow Dashboard
+          </h1>
+          <p className="text-base text-on-surface-variant mt-1 leading-relaxed">
             Manage and track your global application lifecycle in real-time.
           </p>
         </div>
-        <Link className="button button--primary button--pill" to="/applications/new">
+        <Link
+          className="inline-flex items-center justify-center gap-2 min-h-[40px] font-semibold text-sm rounded-full px-6 bg-primary text-white hover:bg-primary-strong active:scale-95 transition-all shadow-sm hover:shadow-soft"
+          to="/applications/new"
+        >
           <Plus aria-hidden="true" size={18} />
           Create New Application
         </Link>
       </section>
 
       {/* Bento Grid Summaries */}
-      <div className="bento-grid">
-        <div className="bento-card">
-          <div className="accent-bar accent-bar--primary" />
-          <p className="bento-card__label">Active Workflows</p>
-          <div className="bento-card__row">
-            <span className="bento-card__value">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+        <div className="relative bg-white border border-outline-variant p-6 rounded-lg overflow-hidden">
+          <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary" />
+          <p className="text-xs font-semibold tracking-wider uppercase text-on-surface-variant m-0">
+            Active Workflows
+          </p>
+          <div className="flex items-end justify-between mt-2">
+            <span className="text-[36px] leading-11 font-bold text-on-surface tracking-tight">
               {totalCount > 0 ? totalCount.toLocaleString() : '—'}
             </span>
-            <span className="bento-card__badge">
+            <span className="inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded bg-secondary-container text-primary">
               <TrendingUp size={12} />
               Active
             </span>
           </div>
-          <div className="bento-card__progress">
-            <div className="bento-card__progress-fill" style={{ width: '65%' }} />
+          <div className="h-1 w-full bg-surface-container-highest rounded-full overflow-hidden mt-4">
+            <div className="h-full bg-primary" style={{ width: '65%' }} />
           </div>
         </div>
 
-        <div className="bento-card">
-          <div className="accent-bar accent-bar--tertiary" />
-          <p className="bento-card__label">Pending Review</p>
-          <div className="bento-card__row">
-            <span className="bento-card__value">{pendingCount > 0 ? pendingCount : '—'}</span>
-            <Clock size={22} className="bento-card__icon" />
+        <div className="relative bg-white border border-outline-variant p-6 rounded-lg overflow-hidden">
+          <div className="absolute left-0 top-0 bottom-0 w-1 bg-tertiary" />
+          <p className="text-xs font-semibold tracking-wider uppercase text-on-surface-variant m-0">
+            Pending Review
+          </p>
+          <div className="flex items-end justify-between mt-2">
+            <span className="text-[36px] leading-11 font-bold text-on-surface tracking-tight">
+              {pendingCount > 0 ? pendingCount : '—'}
+            </span>
+            <Clock size={22} className="text-tertiary" />
           </div>
-          <p className="bento-card__meta">Avg. wait time: 4.2 days</p>
+          <p className="mt-2 text-sm text-on-surface-variant">Avg. wait time: 4.2 days</p>
         </div>
       </div>
 
       <ErrorMessage>{query.isError ? getApiErrorMessage(query.error) : ''}</ErrorMessage>
 
       {/* Application List Table */}
-      <section className="table-surface" aria-busy={query.isLoading}>
-        <div className="table-surface__header">
-          <div className="table-surface__header-left">
-            <h2>Application List</h2>
-            <div className="filter-tab">
+      <section className="bg-surface border border-outline-variant rounded-lg shadow-sm overflow-hidden" aria-busy={query.isLoading}>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 border-b border-outline-variant">
+          <div className="flex items-center gap-4">
+            <h2 className="text-xl font-semibold m-0">Application List</h2>
+            <div className="flex border border-outline-variant rounded p-1 bg-surface-container-low">
               <button
-                className="filter-tab__item"
+                className="px-3 py-1 bg-white rounded shadow-sm text-xs font-semibold text-primary border-none cursor-pointer"
                 onClick={() => navigate({ to: '/', search: { status: undefined } })}
               >
                 {activeFilterLabel}
               </button>
               {statusFilter && (
                 <button
-                  className="filter-tab__item"
-                  style={{
-                    marginLeft: 4,
-                    background: 'transparent',
-                    border: 'none',
-                    color: 'var(--outline)',
-                    boxShadow: 'none',
-                  }}
+                  className="px-2 bg-transparent border-none text-outline text-xs cursor-pointer hover:text-primary transition-colors"
                   onClick={() => navigate({ to: '/', search: { status: undefined } })}
                 >
                   Clear Filter
@@ -190,38 +194,39 @@ export default function ApplicationListPage() {
               )}
             </div>
           </div>
-          <div className="table-surface__header-right">
-            <label className="search-field search-field--inline">
-              <Search aria-hidden="true" size={16} />
+          <div className="flex items-center gap-2 flex-wrap">
+            <label className="flex items-center gap-2.5 w-full md:w-[200px] min-h-[36px] px-3 bg-surface border border-outline-variant rounded text-sm text-on-surface focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all">
+              <Search aria-hidden="true" size={16} className="text-outline" />
               <span className="sr-only">Search applications</span>
               <input
                 value={globalFilter}
                 onChange={(event) => setGlobalFilter(event.target.value)}
                 placeholder="Search..."
+                className="w-full border-0 outline-0 bg-transparent"
               />
             </label>
-            <button className="button button--ghost button--sm">
+            <button className="inline-flex items-center justify-center gap-2 min-h-[36px] font-semibold text-xs rounded px-3 border border-outline-variant text-secondary bg-transparent hover:bg-surface-container-low transition-colors">
               <Filter size={14} /> Filter
             </button>
-            <button className="button button--ghost button--sm">
+            <button className="inline-flex items-center justify-center gap-2 min-h-[36px] font-semibold text-xs rounded px-3 border border-outline-variant text-secondary bg-transparent hover:bg-surface-container-low transition-colors">
               <Download size={14} /> Export
             </button>
           </div>
         </div>
 
         {query.isLoading ? (
-          <p className="empty-state">Loading applications...</p>
+          <p className="m-0 p-9 text-on-surface-variant text-center">Loading applications...</p>
         ) : table.getRowModel().rows.length ? (
           <>
-            <div className="table-scroll">
-              <table>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-sm">
                 <thead>
                   {table.getHeaderGroups().map((headerGroup) => (
                     <tr key={headerGroup.id}>
                       {headerGroup.headers.map((header) => (
-                        <th key={header.id} scope="col">
+                        <th key={header.id} scope="col" className="bg-surface-container-low text-outline text-xs font-semibold tracking-wider uppercase p-3.5 border-b border-surface-container-highest text-left">
                           <button
-                            className="table-sort"
+                            className="inline-flex items-center gap-1.5 p-0 bg-transparent border-0 text-inherit font-inherit font-semibold uppercase cursor-pointer"
                             type="button"
                             onClick={header.column.getToggleSortingHandler()}
                           >
@@ -243,9 +248,10 @@ export default function ApplicationListPage() {
                           params: { id: String((row.original as Application).id) } as any,
                         })
                       }
+                      className="cursor-pointer transition-all hover:bg-surface-container-low hover:translate-x-1"
                     >
                       {row.getVisibleCells().map((cell) => (
-                        <td key={cell.id}>
+                        <td key={cell.id} className="p-3.5 border-b border-surface-container-highest text-left align-middle">
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </td>
                       ))}
@@ -255,21 +261,21 @@ export default function ApplicationListPage() {
               </table>
             </div>
 
-            <div className="table-surface__footer">
+            <div className="flex items-center justify-between p-3 px-6 border-t border-outline-variant bg-surface-container-low text-sm text-on-surface-variant">
               <span>
                 Showing 1 to {table.getRowModel().rows.length} of {filteredData.length} entries
               </span>
-              <div className="table-surface__footer-pagination">
-                <button className="pagination-btn" disabled>
+              <div className="flex items-center gap-1">
+                <button className="flex items-center justify-center w-8 h-8 border border-outline-variant rounded bg-transparent text-outline text-base cursor-pointer hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors" disabled>
                   ‹
                 </button>
-                <span className="pagination-current">1</span>
-                <button className="pagination-btn">›</button>
+                <span className="flex items-center justify-center w-8 h-8 rounded bg-primary text-white font-semibold text-sm">1</span>
+                <button className="flex items-center justify-center w-8 h-8 border border-outline-variant rounded bg-transparent text-outline text-base cursor-pointer hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors">›</button>
               </div>
             </div>
           </>
         ) : (
-          <p className="empty-state">No applications found in this stage.</p>
+          <p className="m-0 p-9 text-on-surface-variant text-center">No applications found in this stage.</p>
         )}
       </section>
     </div>

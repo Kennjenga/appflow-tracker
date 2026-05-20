@@ -7,6 +7,24 @@ Mini application workflow tracker built for the Django/React take-home assignmen
 - Name: Kenneth Njenga
 - Email: kinyagia2@gmail.com
 
+## Screenshots
+
+### Dashboard
+
+<img src="docs/images/appflow%20dashboard.png" alt="AppFlow Tracker Dashboard" width="1200">
+
+### Create Application
+
+<img src="docs/images/appflow%20create.png" alt="AppFlow Tracker Create Application" width="1200">
+
+### Admin Dashboard
+
+<img src="docs/images/appflow%20admin%20dashboard.png" alt="AppFlow Tracker Admin Dashboard" width="1200">
+
+### API Documentation
+
+<img src="docs/images/appflow%20apis.png" alt="AppFlow Tracker API Documentation" width="1200">
+
 The workflow is:
 
 ```text

@@ -2,6 +2,16 @@
 
 Django backend for AppFlow Tracker.
 
+## Screenshots
+
+### Admin Dashboard
+
+<img src="../docs/images/appflow%20admin%20dashboard.png" alt="AppFlow Tracker Admin Dashboard" width="1200">
+
+### API Documentation
+
+<img src="../docs/images/appflow%20apis.png" alt="AppFlow Tracker API Documentation" width="1200">
+
 ## Setup
 
 ```powershell

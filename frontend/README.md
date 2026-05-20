@@ -2,6 +2,16 @@
 
 React frontend for the mini application workflow tracker.
 
+## Screenshots
+
+### Dashboard
+
+<img src="../docs/images/appflow%20dashboard.png" alt="AppFlow Tracker Dashboard" width="1200">
+
+### Create Application
+
+<img src="../docs/images/appflow%20create.png" alt="AppFlow Tracker Create Application" width="1200">
+
 ## Stack
 
 - Vite + React

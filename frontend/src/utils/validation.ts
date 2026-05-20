@@ -2,8 +2,11 @@ import { APPLICATION_TYPES } from './workflow'
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-export function validateApplicationForm(values) {
-  const errors = {}
+type Values = Record<string, any>
+export type ValidationErrors = Record<string, string>
+
+export function validateApplicationForm(values: Values): ValidationErrors {
+  const errors: ValidationErrors = {}
 
   if (!values.applicant_name?.trim()) {
     errors.applicant_name = 'Applicant name is required.'
@@ -26,6 +29,6 @@ export function validateApplicationForm(values) {
   return errors
 }
 
-export function hasErrors(errors) {
+export function hasErrors(errors: ValidationErrors): boolean {
   return Object.keys(errors).length > 0
 }

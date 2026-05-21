@@ -21,7 +21,7 @@ venv\Scripts\activate
 @"
 SECRET_KEY=change-me-for-non-local-use
 DEBUG=True
-DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
+ALLOWED_HOSTS=localhost,127.0.0.1
 CORS_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
 "@ | Set-Content .env
 pip install -r requirements.txt
@@ -42,8 +42,9 @@ The backend includes [.env.example](.env.example) with the local settings that s
 
 ## Useful URLs
 
-- API docs: http://localhost:8000/api/docs
+- API docs: http://localhost:8000/api/v1/docs
 - Django admin: http://localhost:8000/admin/
+- Django debug: set `DEBUG=True` in `.env` for local development.
 
 ## Tests
 

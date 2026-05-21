@@ -61,7 +61,7 @@ venv\Scripts\activate
 @"
 SECRET_KEY=change-me-for-non-local-use
 DEBUG=True
-DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
+ALLOWED_HOSTS=localhost,127.0.0.1
 CORS_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
 "@ | Set-Content .env
 
@@ -73,8 +73,9 @@ python manage.py runserver
 
 Useful URLs:
 
-- API docs: `http://localhost:8000/api/docs`
+- API docs: `http://localhost:8000/api/v1/docs`
 - Django Unfold admin: `http://localhost:8000/admin/`
+- Django debug: set `DEBUG=True` in `backend/.env` for local development.
 
 The backend includes `backend/.env.example` with the local settings that would be externalized for non-local use, including `SECRET_KEY=change-me-for-non-local-use`. To generate a new secret key with Node.js, run `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`. The current assignment implementation keeps settings simple and source-readable.
 
@@ -86,12 +87,12 @@ npm install
 npm run dev
 ```
 
-The frontend runs at `http://localhost:5173` and calls `http://localhost:8000/api` by default.
+The frontend runs at `http://localhost:5173` and calls `http://localhost:8000/api/v1` by default.
 
 To override the API base URL, create `frontend/.env`:
 
 ```text
-VITE_API_BASE_URL=http://localhost:8000/api
+VITE_API_BASE_URL=http://localhost:8000/api/v1
 ```
 
 ## API Examples
@@ -99,7 +100,7 @@ VITE_API_BASE_URL=http://localhost:8000/api
 Create a draft:
 
 ```bash
-curl -X POST http://localhost:8000/api/applications/ ^
+curl -X POST http://localhost:8000/api/v1/applications/ ^
   -H "Content-Type: application/json" ^
   -d "{\"applicant_name\":\"Jane Doe\",\"applicant_email\":\"jane@example.com\",\"company_name\":\"Acme Ltd\",\"application_type\":\"Recordation\",\"description\":\"Initial filing\"}"
 ```
@@ -107,19 +108,19 @@ curl -X POST http://localhost:8000/api/applications/ ^
 Submit a draft:
 
 ```bash
-curl -X POST http://localhost:8000/api/applications/1/submit/
+curl -X POST http://localhost:8000/api/v1/applications/1/submit/
 ```
 
 Start review:
 
 ```bash
-curl -X POST http://localhost:8000/api/applications/1/start-review/
+curl -X POST http://localhost:8000/api/v1/applications/1/start-review/
 ```
 
 Record a reviewer decision:
 
 ```bash
-curl -X POST http://localhost:8000/api/applications/1/decision/ ^
+curl -X POST http://localhost:8000/api/v1/applications/1/decision/ ^
   -H "Content-Type: application/json" ^
   -d "{\"decision\":\"Need More Information\",\"reviewer_comment\":\"Please upload the missing ownership document.\"}"
 ```

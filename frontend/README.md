@@ -28,10 +28,10 @@ npm install
 npm run dev
 ```
 
-The app expects the API at `http://localhost:8000/api` by default. Override it with:
+The app expects the API at `http://localhost:8000/api/v1` by default. Override it with:
 
 ```bash
-VITE_API_BASE_URL=http://localhost:8000/api
+VITE_API_BASE_URL=http://localhost:8000/api/v1
 ```
 
 ## Scripts

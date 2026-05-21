@@ -51,6 +51,11 @@ function mapApplicationToForm(application?: Application): FormShape {
   }
 }
 
+  // mapApplicationToForm: Convert an Application model object received from
+  // the API into the local form shape used by controlled inputs. This keeps
+  // the UI decoupled from the server representation and provides defaults
+  // for missing values.
+
 export default function ApplicationFormPage() {
   const paramsAny = useParams({ strict: false } as any) as any
   const id = paramsAny?.id as string | undefined
@@ -122,6 +127,10 @@ export default function ApplicationFormPage() {
     }
   }
 
+  // handleChange: Generic change handler for all form fields. Marks the
+  // form as dirty and updates local state. If the user has already tried
+  // to submit, re-run validation live so errors clear as they type.
+
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault()
     setSubmitted(true)
@@ -137,6 +146,12 @@ export default function ApplicationFormPage() {
       description: activeForm.description.trim(),
     })
   }
+
+  // handleSubmit: Validate the form client-side and submit via React
+  // Query mutation. The mutation will call the API `create` or `update`
+  // depending on whether this is an edit flow. We do not implement a
+  // 'save as draft' branch here — drafts are created via the same create
+  // API but the UI no longer exposes a separate draft action.
 
   return (
     <div className="page-shell page-shell--narrow">

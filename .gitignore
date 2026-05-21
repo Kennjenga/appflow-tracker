@@ -6,7 +6,6 @@ __pycache__/
 db.sqlite3
 venv/
 backend/venv/
-PLAN.md
 
 node_modules/
 dist/

@@ -53,11 +53,16 @@ frontend/
 
 ## Backend Setup
 
+Use these commands to create an isolated Python environment, install backend
+dependencies, apply database migrations, and launch the Django server.
+
 ```powershell
+# Create and activate the backend virtual environment.
 cd backend
 python -m venv venv
 venv\Scripts\activate
 
+# Write local development settings for Django.
 @"
 SECRET_KEY=change-me-for-non-local-use
 DEBUG=True
@@ -65,9 +70,13 @@ ALLOWED_HOSTS=localhost,127.0.0.1
 CORS_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
 "@ | Set-Content .env
 
+# Install backend dependencies.
 pip install -r requirements.txt
+# Apply database migrations.
 python manage.py migrate
+# Create an admin user for the Django admin.
 python manage.py createsuperuser
+# Start the backend API server.
 python manage.py runserver
 ```
 
@@ -81,9 +90,15 @@ The backend includes `backend/.env.example` with the local settings that would b
 
 ## Frontend Setup
 
+Use these commands to install frontend dependencies and start the Vite dev
+server. The frontend reads the API base URL from `VITE_API_BASE_URL` when it
+is provided, otherwise it defaults to the local backend.
+
 ```bash
+# Install frontend dependencies.
 cd frontend
 npm install
+# Start the Vite development server.
 npm run dev
 ```
 

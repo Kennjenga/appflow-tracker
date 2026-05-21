@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { ArrowLeft, Save, Send, AlertCircle, ShieldCheck, Share2 } from 'lucide-react'
+import { ArrowLeft, Send, AlertCircle, ShieldCheck, Share2 } from 'lucide-react'
 import { Link, useNavigate, useParams } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { applicationsApi, getApiErrorMessage } from '../api/applications'
@@ -287,13 +287,6 @@ export default function ApplicationFormPage() {
 
             {/* Button Row */}
             <div className="button-row button-row--end">
-              <Link
-                className="button button--ghost"
-                to={isEdit ? '/applications/$id' : '/'}
-                params={(isEdit ? { id } : undefined) as any}
-              >
-                Save as Draft
-              </Link>
               <button
                 className="button button--primary"
                 type="submit"

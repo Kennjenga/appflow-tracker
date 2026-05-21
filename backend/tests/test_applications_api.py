@@ -1,4 +1,5 @@
 import pytest
+from django.test import Client
 from django.utils import timezone
 from ninja.testing import TestClient
 
@@ -9,6 +10,7 @@ from apps.applications.models import Application
 pytestmark = pytest.mark.django_db
 
 client = TestClient(router)
+django_client = Client()
 
 
 def payload(**overrides):
@@ -30,6 +32,12 @@ def test_create_application_defaults_to_draft():
     body = response.json()
     assert body["status"] == Application.Status.DRAFT
     assert body["tracking_number"].startswith("APP-")
+
+
+def test_versioned_api_prefix_is_available():
+    response = django_client.get("/api/v1/applications/")
+
+    assert response.status_code == 200
 
 
 def test_update_rejects_non_editable_status():

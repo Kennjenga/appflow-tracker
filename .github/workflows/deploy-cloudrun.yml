@@ -1,0 +1,106 @@
+name: Deploy to Google Cloud Run
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch: # Allows manual triggering from the GitHub Actions tab
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }} # e.g. my-appflow-project
+  REGION: us-central1
+  GAR_REPO: appflow-repo # Artifact Registry repository name
+  BACKEND_SERVICE: appflow-backend
+  FRONTEND_SERVICE: appflow-frontend
+  GCS_BUCKET_NAME: ${{ secrets.GCP_GCS_BUCKET_NAME }} # e.g. my-sqlite-db-bucket
+
+jobs:
+  deploy:
+    name: Build, Push, and Deploy to Cloud Run
+    runs-on: ubuntu-latest
+
+    # Add permissions required for keyless Workload Identity Federation (recommended)
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # ── Google Cloud Authentication ─────────────────────────────────────────
+      # Option 1: Workload Identity Federation (Recommended & Secure)
+      # To use, uncomment below and define secrets.GCP_WORKLOAD_PROVIDER and secrets.GCP_SERVICE_ACCOUNT
+      # - name: Google Auth (Workload Identity)
+      #   uses: google-github-actions/auth@v2
+      #   with:
+      #     workload_identity_provider: ${{ secrets.GCP_WORKLOAD_PROVIDER }}
+      #     service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      # Option 2: Service Account Key JSON (Simpler for initial setups)
+      # To use, create a service account in GCP, download the JSON key, and add it as GCP_SA_KEY secret
+      - name: Google Auth (Service Account Key)
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+
+      - name: Configure Docker for Artifact Registry
+        run: |
+          gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+
+      # ── Build & Deploy Backend ──────────────────────────────────────────────
+      - name: Build and Push Backend Image
+        run: |
+          docker build \
+            -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_REPO }}/${{ env.BACKEND_SERVICE }}:${{ github.sha }} \
+            -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_REPO }}/${{ env.BACKEND_SERVICE }}:latest \
+            ./backend
+          docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_REPO }}/${{ env.BACKEND_SERVICE }}:${{ github.sha }}
+          docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_REPO }}/${{ env.BACKEND_SERVICE }}:latest
+
+      - name: Deploy Backend to Cloud Run
+        id: deploy-backend
+        run: |
+          # Deploys backend to Cloud Run, attaching the Cloud Storage bucket for persistent SQLite
+          gcloud run deploy ${{ env.BACKEND_SERVICE }} \
+            --image ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_REPO }}/${{ env.BACKEND_SERVICE }}:${{ github.sha }} \
+            --region ${{ env.REGION }} \
+            --platform managed \
+            --allow-unauthenticated \
+            --add-volume=name=sqlite-volume,type=cloud-storage,bucket=${{ env.GCS_BUCKET_NAME }} \
+            --add-volume-mount=volume=sqlite-volume,mount-path=/app/db \
+            --set-env-vars="DJANGO_DB_PATH=/app/db/db.sqlite3,DEBUG=False,SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}"
+
+      # ── Get Deployed Backend URL ──────────────────────────────────────────
+      - name: Get Backend URL
+        id: backend-url
+        run: |
+          # Query the service URL and save it to GITHUB_OUTPUT
+          URL=$(gcloud run services describe ${{ env.BACKEND_SERVICE }} --region ${{ env.REGION }} --format='value(status.url)')
+          echo "url=$URL" >> $GITHUB_OUTPUT
+          echo "Backend is running at: $URL"
+
+      # ── Build & Deploy Frontend ─────────────────────────────────────────────
+      - name: Build and Push Frontend Image
+        run: |
+          # Build frontend passing the newly deployed backend's URL as a build arg
+          docker build \
+            --build-arg VITE_API_BASE_URL=${{ steps.backend-url.outputs.url }}/api/v1 \
+            -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_REPO }}/${{ env.FRONTEND_SERVICE }}:${{ github.sha }} \
+            -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_REPO }}/${{ env.FRONTEND_SERVICE }}:latest \
+            ./frontend
+          docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_REPO }}/${{ env.FRONTEND_SERVICE }}:${{ github.sha }}
+          docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_REPO }}/${{ env.FRONTEND_SERVICE }}:latest
+
+      - name: Deploy Frontend to Cloud Run
+        run: |
+          gcloud run deploy ${{ env.FRONTEND_SERVICE }} \
+            --image ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_REPO }}/${{ env.FRONTEND_SERVICE }}:${{ github.sha }} \
+            --region ${{ env.REGION }} \
+            --platform managed \
+            --allow-unauthenticated

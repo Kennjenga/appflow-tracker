@@ -1,7 +1,8 @@
 # appflow-tracker — Build Plan
 
 > Take-home assignment: Mini Application Workflow Tracker  
-> Stack: Django + Django Ninja (backend) · React + TanStack (frontend)
+> Stack: Django + Django Ninja (backend) · React + TanStack (frontend) just running tests workflow
+
 
 ---
 

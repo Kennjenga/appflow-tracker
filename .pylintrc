@@ -1,0 +1,22 @@
+[MASTER]
+# Load the Django Pylint plugin to resolve dynamic attributes like model.objects
+load-plugins=pylint_django
+django-settings-module=core.settings
+
+# Ignore auto-generated migration files
+ignore-paths=backend/apps/applications/migrations
+
+[MESSAGES CONTROL]
+# Disable noisy style warnings and rules that conflict with modern web APIs
+disable=
+    missing-module-docstring,
+    missing-class-docstring,
+    missing-function-docstring,
+    too-few-public-methods,
+    invalid-name,
+    line-too-long,
+    trailing-newlines
+
+[VARIABLES]
+# Do not flag unused arguments if they are named 'request'
+dummy-variables-rgx=_+$|(_[a-zA-Z0-9_]*|$)|request

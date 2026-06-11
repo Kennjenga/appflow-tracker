@@ -1,0 +1,151 @@
+# ════════════════════════════════════════════════════════════════════════════
+#  CI Pipeline — Runs on every Pull Request targeting master
+#
+#  What this pipeline does:
+#    Job 1 (backend-tests)  → Install Python deps → Run pytest
+#    Job 2 (frontend-tests) → Install Node deps  → Run Vitest → Vite build
+#
+#  Both jobs run in PARALLEL (no `needs:` between them).
+#  The PR is only considered green when BOTH jobs pass. ✅
+# ════════════════════════════════════════════════════════════════════════════
+
+name: PR Tests
+
+# ── TRIGGER ─────────────────────────────────────────────────────────────────
+#  This workflow fires whenever a Pull Request is:
+#    • opened       — brand new PR
+#    • synchronize  — new commit pushed to an existing PR
+#    • reopened     — a closed PR is re-opened
+#
+#  It ONLY runs for PRs that target the `master` branch.
+# ─────────────────────────────────────────────────────────────────────────────
+on:
+  pull_request:
+    branches:
+      - master
+
+# ── JOBS ─────────────────────────────────────────────────────────────────────
+jobs:
+
+  # ┌─────────────────────────────────────────────────────────────────────────┐
+  # │  JOB 1 · Backend Tests                                                  │
+  # │  Runs Django / pytest on an Ubuntu virtual machine.                     │
+  # └─────────────────────────────────────────────────────────────────────────┘
+  backend-tests:
+    name: 🐍 Backend — pytest
+    runs-on: ubuntu-latest   # Fresh Ubuntu VM, wiped after each run
+
+    # Change into the backend folder for every step in this job
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      # ── Step 1 ──────────────────────────────────────────────────────────
+      # Download the repository code onto the runner.
+      # Without this step, the VM has no access to your files.
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── Step 2 ──────────────────────────────────────────────────────────
+      # Install Python 3.12 on the runner VM.
+      # The `with:` block passes the version as a parameter to the Action.
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # ── Step 3 ──────────────────────────────────────────────────────────
+      # Cache pip packages so we don't re-download them on every PR run.
+      # The cache key includes the hash of requirements.txt — if the file
+      # changes, the cache is invalidated and packages are re-downloaded.
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ runner.os }}-${{ hashFiles('backend/requirements.txt') }}
+          restore-keys: |
+            pip-${{ runner.os }}-
+
+      # ── Step 4 ──────────────────────────────────────────────────────────
+      # Install all Python packages listed in requirements.txt.
+      # `run:` executes a shell command directly on the runner.
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # ── Step 5 ──────────────────────────────────────────────────────────
+      # Run the Django system check — catches configuration errors fast,
+      # before we even run tests.
+      - name: Django system check
+        run: python manage.py check
+        env:
+          SECRET_KEY: ci-only-not-a-real-secret
+          DEBUG: "True"
+
+      # ── Step 6 ──────────────────────────────────────────────────────────
+      # Run the full pytest suite.
+      # --tb=short  → shorter tracebacks (easier to read in CI logs)
+      # -v          → verbose output (shows each test name)
+      - name: Run pytest
+        run: pytest --tb=short -v
+        env:
+          SECRET_KEY: ci-only-not-a-real-secret
+          DEBUG: "True"
+
+
+  # ┌─────────────────────────────────────────────────────────────────────────┐
+  # │  JOB 2 · Frontend Tests                                                 │
+  # │  Runs Vitest + a production build check on an Ubuntu virtual machine.   │
+  # └─────────────────────────────────────────────────────────────────────────┘
+  frontend-tests:
+    name: ⚛️ Frontend — Vitest + Build
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      # ── Step 1 ──────────────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── Step 2 ──────────────────────────────────────────────────────────
+      # Install Node.js 20 on the runner.
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # ── Step 3 ──────────────────────────────────────────────────────────
+      # Cache node_modules so npm ci doesn't re-download packages every run.
+      # The cache key uses the hash of package-lock.json — exact dependency
+      # versions are locked, so this cache is very stable.
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: frontend/node_modules
+          key: node-${{ runner.os }}-${{ hashFiles('frontend/package-lock.json') }}
+          restore-keys: |
+            node-${{ runner.os }}-
+
+      # ── Step 4 ──────────────────────────────────────────────────────────
+      # `npm ci` is the CI-safe version of `npm install`.
+      # It installs exact versions from package-lock.json and errors if
+      # the lockfile is out of sync — preventing surprise dependency changes.
+      - name: Install dependencies
+        run: npm ci
+
+      # ── Step 5 ──────────────────────────────────────────────────────────
+      # Run the Vitest unit test suite.
+      - name: Run Vitest tests
+        run: npm run test
+
+      # ── Step 6 ──────────────────────────────────────────────────────────
+      # Attempt a production build with Vite.
+      # This catches TypeScript errors, missing imports, and broken assets
+      # that might not surface in unit tests alone.
+      - name: Production build check
+        run: npm run build
+        env:
+          VITE_API_BASE_URL: http://localhost:8000/api/v1

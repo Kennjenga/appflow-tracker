@@ -1,0 +1,55 @@
+services:
+  # ── Django backend (Gunicorn) ───────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: kennjenga/appflow-tracker-backend:local
+    container_name: appflow-backend
+    restart: unless-stopped
+    env_file:
+      - .env.docker
+    volumes:
+      # Persist SQLite database across container restarts
+      - sqlite_data:/app/db
+    environment:
+      # Override the DB path to write into the mounted volume
+      - DJANGO_DB_PATH=/app/db/db.sqlite3
+    expose:
+      - "8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/applications/')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    networks:
+      - appflow-net
+
+  # ── React frontend (Nginx) ──────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # Points the built JS bundle at the backend via nginx proxy
+        VITE_API_BASE_URL: /api/v1
+    image: kennjenga/appflow-tracker-frontend:local
+    container_name: appflow-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - appflow-net
+
+volumes:
+  sqlite_data:
+    name: appflow-sqlite-data
+
+networks:
+  appflow-net:
+    name: appflow-network
+    driver: bridge

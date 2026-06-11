@@ -59,10 +59,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "core.wsgi.application"
 
+_db_path = os.getenv("DJANGO_DB_PATH")
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "NAME": Path(_db_path) if _db_path else BASE_DIR / "db.sqlite3",
     }
 }
 
@@ -79,6 +80,7 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 CORS_ALLOWED_ORIGINS = env_list(

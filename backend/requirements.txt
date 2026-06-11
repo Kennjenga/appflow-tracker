@@ -2,5 +2,6 @@ django>=4.2,<6.0
 django-ninja>=1.0
 django-cors-headers>=4.0
 django-unfold>=0.40
+gunicorn>=21.0
 pytest>=8.0
 pytest-django>=4.8

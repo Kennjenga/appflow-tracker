@@ -14,3 +14,6 @@ dist/
 .env
 frontend/.env
 backend/.env
+
+# Docker local secrets (copy .env.docker.example → .env.docker and fill in)
+.env.docker
